@@ -128,16 +128,16 @@ python -m pytest tests/ -v
 ### Métricas a coletar
 
 **Métricas técnicas do job:**
-- `etl_duration_seconds` — duração do job. Alerta se > 1800s (30min): indica degradação.
-- `etl_lines_skipped_total` — linhas malformadas por dia. Alerta se > 5%: indica mudança no formato do log.
-- `etl_lines_processed_total` — total de linhas processadas. Alerta se cair > 30% em relação à média dos últimos 7 dias: indica problema na geração dos logs.
-- `etl_exit_code` — código de saída do job. Alerta se != 0: falha no processamento.
+- `etl_duration_seconds` duração do job. Alerta se > 1800s (30min): indica degradação.
+- `etl_lines_skipped_total` linhas malformadas por dia. Alerta se > 5%: indica mudança no formato do log.
+- `etl_lines_processed_total` total de linhas processadas. Alerta se cair > 30% em relação à média dos últimos 7 dias: indica problema na geração dos logs.
+- `etl_exit_code` código de saída do job. Alerta se != 0: falha no processamento.
 
 **Métricas de negócio (dentro do Parquet):**
-- `error_rate` por app — alerta se > 10% em qualquer app: indica problema na aplicação.
-- `latency_p99` por app — alerta se > 5000ms: degradação de performance.
-- `unique_users` por dia — alerta se cair > 40% vs média: pode indicar problema de coleta ou queda real de uso.
-- `total_requests` por dia — alerta se zero em qualquer app: app pode estar fora do ar.
+- `error_rate` por app alerta se > 10% em qualquer app: indica problema na aplicação.
+- `latency_p99` por app alerta se > 5000ms: degradação de performance.
+- `unique_users` por dia alerta se cair > 40% vs média: pode indicar problema de coleta ou queda real de uso.
+- `total_requests` por dia alerta se zero em qualquer app: app pode estar fora do ar.
 
 ### Onde coletar
 
