@@ -7,13 +7,12 @@ docker run --rm -v "$(pwd)/data:/app/data" etl-logs --start 2026-05-01 --end 202
 ### Polars em vez de Pandas ou Spark
 Escolhi Polars porque o cenário é um servidor Ubuntu único processando um dia de logs por vez.
 Pandas seria mais lento e consumiria mais memória para volumes grandes. Spark faz sentido para
-clusters distribuídos — adiciona complexidade operacional desnecessária aqui. Polars resolve
-com processamento paralelo nativo, uso de Arrow internamente e lazy evaluation.
+clusters distribuídos adiciona complexidade operacional. Polars resolve com processamento paralelo nativo, uso de Arrow internamente e lazy evaluation.
 
 ### Leitura em streaming
 O process_logs.py lê os arquivos .log.gz linha por linha com gzip.open + for line in f.
 Nunca carrega o arquivo inteiro na memória. Os records são acumulados em lista e o DataFrame
-é construído uma única vez ao final — Polars é muito mais eficiente assim do que inserção incremental.
+é construído uma única vez ao final Polars é muito mais eficiente assim do que inserção incremental.
 
 ### Idempotência via arquivo temporário
 A escrita do Parquet usa um arquivo .tmp.parquet que é renomeado atomicamente para o nome final.
@@ -36,30 +35,28 @@ precisa executar testes.
 
 ## O que tentei e descartei
 
-- Tentei usar DuckDB para leitura direta dos .log.gz mas ele não suporta parsing de formato
-  customizado linha a linha. Ficou com Python puro para parsing + Polars para agregação.
-- Considerei escrever o Parquet particionado por app mas o enunciado pede um arquivo por dia,
-  não por app.
+Tentei usar DuckDB para leitura direta dos .log.gz mas ele não suporta parsing de formato
+customizado linha a linha. Ficou com Python puro para parsing + Polars para agregação.
+Considerei escrever o Parquet particionado por app mas o enunciado pede um arquivo por dia,
+não por app.
 
 ## Uso de IA
-Usei Claude como par técnico durante todo o desenvolvimento. Cada bloco de código foi explicado
-antes de ser escrito — entendo o propósito de cada linha. A IA sugeriu o padrão de arquivo
-temporário para idempotência e o uso de Path.replace() para compatibilidade Windows/Linux.
+Usei Claude como par técnico durante todo o desenvolvimento deste desafio. Cada bloco de código foi explicado antes de ser escrito entendo o propósito de cada linha. A IA sugeriu o padrão de arquivo temporário para idempotência e o uso de Path.replace() para compatibilidade Windows/Linux.
 
 ## Limitações conhecidas
 
 - O script bash run_daily.sh usa date -d "yesterday" que é GNU date (Linux). No macOS seria
   date -v-1d. Em produção Ubuntu isso não é problema.
-- Não há retry automático por dia com falha — se um dia falhar, precisa rodar manualmente.
+- Não há retry automático por dia com falha se um dia falhar, precisa rodar manualmente.
 - O volume de dados sintéticos é pequeno para testes. Em produção com dezenas de milhões de
-  linhas, o acúmulo de records em lista pode pressionar memória — alternativa seria processar
+  linhas, o acúmulo de records em lista pode pressionar memória alternativa seria processar
   em chunks e concatenar DataFrames parciais.
-- Não implementamos autenticação no registry Docker — em produção a imagem estaria em um
+- Não implementamos autenticação no registry Docker em produção a imagem estaria em um
   registry privado.
 
 ## Perguntas que faria ao time
 
-- Qual o volume médio real de linhas por dia? Isso define se precisamos de chunking.
+- Qual o volume médio real de linhas por dia? 
 - Os logs já estão em /var/log/apps/ ou precisamos de um step de coleta antes?
 - Existe um data catalog ou os Parquets ficam só no filesystem?
 - Qual a política de retenção dos Parquets de saída?
