@@ -1,0 +1,19 @@
+[Unit]
+Description=ETL diário de logs de acesso
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=etl
+Group=etl
+ExecStart=/opt/etl/run_daily.sh
+StandardOutput=journal
+StandardError=journal
+MemoryMax=4G
+CPUQuota=80%
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target
