@@ -99,14 +99,17 @@ sudo journalctl -u etl.service -f
 Com Polars:
 
 ```python
+python3 -c "
 import polars as pl
-df = pl.read_parquet("data/output/metrics-2026-05-01.parquet")
+df = pl.read_parquet('data/output/metrics-2026-05-01.parquet')
 print(df)
+"
 ```
 
 Com DuckDB:
 
 ```bash
+pip install duckdb
 python query.py
 ```
 
@@ -139,8 +142,8 @@ python -m pytest tests/ -v
 ### Onde coletar
 
 - O `run_daily.sh` já registra duração e status em `/var/log/etl/run_daily.log`
-- O systemd journal captura stdout/stderr do job — consultável com `journalctl -u etl.service`
-- As métricas de negócio vivem nos Parquets — um job secundário pode ler e exportar para Prometheus ou DataDog
+- O systemd journal captura stdout/stderr do job, consultável com `journalctl -u etl.service`
+- As métricas de negócio vivem nos Parquets, um job secundário pode ler e exportar para Prometheus ou DataDog
 
 ### Como ser notificado
 
@@ -155,4 +158,4 @@ Um dia é suspeito mesmo com job bem-sucedido quando:
 - Nenhum usuário único registrado em qualquer app
 - Latência p99 dobra vs dia anterior sem mudança de volume
 
-Esses casos indicam problema silencioso — o job rodou, mas os dados estão errados ou incompletos.
+Esses casos indicam problema silencioso, o job rodou, mas os dados estão errados ou incompletos.
